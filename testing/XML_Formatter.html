@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>XML Tag Formatter</title>
+
+		<style>
+
+			body {
+				margin-left: 5%;
+				font-family: courier;
+			}
+			textarea{
+				width: 500px;
+				height: 500px;
+			}
+
+			div {
+				display: inline-block;
+			}
+
+		</style>
+
+	</head>
+
+	<body>
+		<h1>XML Tag Formatter</h1>
+		<div>
+			<h2>Input XML</h2>
+			<textarea  id="input"></textarea>
+		</div>
+
+		<div>
+			<h2>Ouput XML</h2>
+			<textarea id="output"></textarea>
+		</div>
+		<br/>
+		<input type="button" value="Convert and Copy to Clipboard" onclick="convert()">
+
+	</body>
+
+	<script>
+
+		//convert the XML
+		function convert(){
+			var input = document.getElementById("input").value;
+
+			var output = "";
+			var currentTag = "";
+			var isReadingTag = false;
+			//var isTagOpen = false;
+
+
+			//Loop through the input
+			for(var i = 0; i < input.length; i++){
+				if(isReadingTag)
+					if(input[i] == ' ' || input[i] == '>' || input[i] == '/'){
+						isReadingTag = false;
+						//isTagOpen = true;
+					}
+					else 
+						currentTag += input[i];
+				if(input[i] == '<'){
+					isReadingTag = true;
+					currentTag = '';
+				}
+				if(input[i] == '/' && input[i+1] == '>'){
+					//Found end of self closing tag
+					input = input.substring(0, i) + input.substring(i+2, input.length);
+					input = insertString(input, `></${currentTag}>`, i);
+
+					//advance i by the amount inserted
+					i+= 3+(currentTag.length);
+					//Reset current tag
+					currentTag = "";
+				}
+			}
+
+			document.getElementById("output").value = input;
+			document.getElementById("output").select();
+			document.execCommand("copy");
+			document.getElementById("input").value = "";
+
+		}
+
+		function insertString(originalString, stringToInsert, insertionPoint){
+			return [originalString.slice(0, insertionPoint), stringToInsert, originalString.slice(insertionPoint)].join('');
+		}
+
+	</script>
+
+</html>
+

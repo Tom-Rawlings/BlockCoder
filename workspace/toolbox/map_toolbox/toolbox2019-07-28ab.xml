@@ -1,0 +1,8 @@
+<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+  <block type="event_start"></block>
+  <block type="map_move_forward">
+    <field name="SPACES">1</field>
+  </block>
+  <block type="map_turn_right"></block>
+  <block type="map_turn_left"></block>
+</xml>

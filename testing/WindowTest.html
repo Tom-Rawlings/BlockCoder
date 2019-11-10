@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Window Test</title>
+
+		<script src="../jquery-3.4.1.min.js"></script>
+		<script src="../windows.js"></script>
+
+		<style>
+
+			.contentWindow{
+				box-sizing: border-box;
+				position: absolute;
+				background-color: red;
+				/*top: 200px;
+				left: 200px;
+				border: 4px solid black;*/
+			}
+
+			#contentWindow0{
+				top: 100px;
+				left: 100px;
+			}
+
+			#innerContent1{
+				background-color: pink;
+			}
+
+			.resizer{
+				width: 200px;
+				height: 200px;
+				background-color: yellow;
+				position: absolute;
+				z-index: 100;
+
+			}
+
+			.verticalResizer{
+				cursor: ns-resize;
+			}
+
+			.horizontalResizer{
+				cursor: ew-resize;
+			}
+
+			.innerContent{
+				background-color: green;
+				position: absolute;
+			}
+
+			body {
+				margin-left: 5%;
+				font-family: courier;
+			}
+
+
+		</style>
+
+	</head>
+
+	<body>
+		<div>
+	</body>
+
+	<script>
+
+		var window1 = new ContentWindow(null, 100, 100, true);
+		
+		window1.removeResizer(Sides.LEFT);
+		window1.removeResizer(Sides.RIGHT);
+		window1.removeResizer(Sides.TOP);
+		window1.removeResizer(Sides.BOTTOM);
+		window1.makeFullscreen();
+		window1.shiftInnerContentBox(true);
+		window1.shiftInnerContentBox(false);
+		
+		var window2 = new ContentWindow(window1, 100, 50, true);
+		window1.addChild(window2);
+		window2.removeResizer(Sides.LEFT);
+		window2.removeResizer(Sides.RIGHT);
+		window2.removeResizer(Sides.TOP);
+	
+		window2.snapToSide(window1, Sides.TOP, 0.5);
+		//window2.shareResizer(window1, Sides.BOTTOM);
+
+		//window1.removeResizer(Sides.RIGHT);
+
+		/*
+		window1.changeContent(`<div id=testDiv></div>`);
+		var style = {
+			"width": "inherit",
+			"height": "92",
+			"background-color": "blue"
+		}
+		$("#testDiv").css(style);
+		*/
+		
+		//resizer1.addRightWindow(window2);
+
+		//attachVerticalResizerEvents();
+		//attachHorizontalResizerEvents();
+		attachResizerEvents();
+
+		//window1.snapToSide(Sides.LEFT);
+
+
+/*
+	To Do:
+
+	Make variable for each side of the window holding a resizer
+	That way the window knows which resizer controls each side of it
+	Should be able to allow sharing of resizers by combining their height
+
+*/
+		
+	</script>
+
+</html>
+

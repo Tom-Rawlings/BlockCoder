@@ -1,0 +1,587 @@
+/*
+	--z-index levels--
+
+	popup menus: 200;
+
+	--colours--
+	grey: 2B2B2B;
+	orange: cc7832;
+	light blue: A9B7C6;
+	dark blue: 62768c;
+
+*/
+
+html{
+	height: 100%;
+}
+
+body{
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	font-family: consolas;
+	/*Page is hidden until it's finished setting up*/
+	display: none;
+	height: 100%;
+}
+
+div{
+
+}
+
+table, td{
+	border: 1px solid black;
+}
+
+td {
+	width: 10px;
+	height: 10px;
+}
+
+/*
+From stackoverflow:
+https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting;
+*/
+.noSelect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.reset{
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 0;
+}
+
+#main {
+
+	width: 700px;
+	height: 700px;
+
+	/*All 0 for centre
+	position: absolute;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+
+	*/
+  	
+	margin: auto;
+
+}
+
+
+#menuBar{
+	box-sizing: border-box;
+	height: 30px;
+	background-color: #DDDDDD;
+	border: 2px solid black;
+	position: relative;
+}
+
+#menuBar [type=button]{
+	margin: 3px;
+}
+
+#menuPopup{
+	width: 800px;
+	height: 600px;
+	position: absolute;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: grey;
+	z-index:200;
+	margin: auto;
+	padding: 10px;
+	padding-left: 20px;
+	display: none;
+}
+
+#menuPopup textarea{
+	/*box-sizing: border-box;*/
+	width: 90%;
+	height: 85%;
+	margin: auto;
+	position: relative;
+	margin-top: 10px;
+	display: block;
+	/*border: 20px solid grey;
+	border-top: 0px;*/
+}
+
+#menuPopup h2{
+	color: white;
+}
+
+.menuPopup-loadMenu{
+	display: none;
+}
+
+.menuPopup-saveMenu{
+	display: none;
+}
+
+#menuPopup-optionsMenu{
+	display: none;
+}
+
+#menuPopup-optionsMenu p{
+	color: white;
+	font-size: 110%;
+}
+
+#menuPopup-loadMenu-loadButton{
+	display: none;
+	right: 10px;
+	position: absolute;
+	bottom: 10px;
+}
+
+
+#menuPopup-closeButton{
+	float: right;
+}
+
+.resizer {
+	background-color: #555555;
+	z-index: 100;
+}
+
+/*
+#stopButton{
+	position: absolute;
+	display: none;
+}
+*/
+
+.overlayTint{
+	background-color: black;
+	position: absolute;
+	pointer-events: none;
+	display: none;
+	opacity: 0.6;
+	z-index: 100;
+	width: 100%;
+	height: 100%;
+	top:0;
+	left:0;
+}
+
+
+
+
+/*
+	Console stuff
+*/
+
+#consoleArea {
+	color: #A9B7C6;
+	/*Font stack from https://www.cssfontstack.com/Consolas*/
+	font-family: Consolas, monaco, monospace;
+	background-color: #2B2B2B;
+	height: 100%;
+	padding: 0px 5px;
+	overflow: hidden;
+	position: relative;
+}
+
+#consoleArea h2{
+	margin: 2px;
+	color: #cc7832;
+}
+
+#consoleArea [type="button"]{
+
+	margin-top: 7px;
+}
+
+#consoleText {
+	padding-right: 0px;
+	width: inherit;
+	height: 100%;
+  overflow: scroll;
+	font-size: 70%;
+}
+
+
+
+#consoleFooter {
+	height: 80px;
+}
+
+#consoleFooter [type="text"]{
+	width: 100%;
+	box-sizing: border-box;
+	padding-right: 5px;
+}
+
+
+#consoleScript {
+	display: none;
+}
+
+.console-error {
+	width: auto;
+	color: #FF0000;
+	background-color: #FFBBBB;
+}
+
+.console-exception {
+	width: auto;
+	color: #FF0000;
+	background-color: #FFBBBB;
+}
+/*
+	------
+*/
+
+#codeArea{
+	height: 100%;
+	width: inherit;
+	display: inline-block;
+	box-sizing: border-box;
+	padding:5px;
+	vertical-align: top;
+	resize: none;
+	white-space: nowrap;
+}
+
+.CodeMirror{
+
+}
+
+.CodeMirror-hscrollbar{
+	padding-left:2px;
+}
+
+
+#blocklyDiv {
+	position: absolute;
+	z-index: 0;
+}
+
+
+/*
+#grid {
+	position: absolute;
+	opacity: 0.5;
+	font-size: 10px;
+}
+
+#grid div{
+	position: absolute;
+}
+*/
+
+
+#runSwitch{
+	position: absolute;
+	font-family: arial;
+	color: #Fafafa;
+	width: 50px;
+	height: 50px;
+	background-color: grey;
+	text-align: center;
+	z-index: 105;
+	bottom: 32px;
+	right: 100px;
+	cursor: pointer;
+}
+
+#runSwitch span{
+	position: relative;
+	top: 3px;
+}
+
+.runSwitchDim{
+	opacity: 0.1;
+}
+
+.runSwitchLit{
+	opacity: 0.8;
+}
+
+#runHalf{
+	height: 25px;
+	background-color: #44cf44;
+}
+
+#stopHalf{
+	height: 25px;
+	background-color: #f22e2e;
+}
+
+#centre {
+	position: absolute;
+	width: 3px;
+	height: 3px;
+	background-color: black;
+	z-index: 99;
+	opacity: 0.5;
+
+}
+
+#playAreaParent{
+	position: absolute;
+}
+
+#playArea {
+	/*box-sizing: border-box;*/
+	/*border: 5px solid black;*/
+	background-color: #f1f1f1;
+
+	overflow: hidden;
+}
+
+#playArea h2 {
+	font-family: arial;
+	text-shadow: 2px 2px 8px #FFFFFF;
+	position: absolute;
+	z-index: 10;
+	opacity: 0.5;
+	margin: 0px;
+	padding: 5px;
+}
+
+#playArea [type=button]{
+	position: absolute;
+	right: 20px;
+	top: 10px;
+}
+
+#hierarchy{
+	height: 100%;
+	width: 100%;
+	background-color: #DDDDDD;
+	font-weight: bold;
+	font-family: arial;
+}
+
+#hierarchy > p{
+	box-sizing: border-box;
+	padding: 0px 5px;
+	position: absolute;
+	width: 100%;
+	height: 95%;
+	overflow-y: scroll;
+}
+
+.colourSwatch{
+	width: 10px;
+	height: 10px;
+	display: inline-block;
+}
+
+
+/*
+	Tutorial
+*/
+
+#tutorial_parent{
+	display: none;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+#tutorial_main{
+	position: relative;
+	width: 100%;
+	height: 100%;
+	z-index: 200;
+
+	color: #62768c;
+	font-family: Helvetica, sans-serif;
+}
+
+#tutorial_background{
+
+	background-color: white;
+	border: 10px solid #2B2B2B;
+	border-radius: 10px;
+
+  width: 700px;
+  height: 500px;
+  padding: 20px;
+
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  margin: -350px 0 0 -350px;
+
+}
+
+
+#tutorial_main h1{
+	color: #cc7832;
+  text-align: center;
+}
+
+#tutorial_background p{
+	font-weight: bold;
+	font-size: 20px;
+	padding-left: 20px;
+	padding-top: 50px;
+	background-color: white;
+}
+
+#tutorial_background [type="button"]{
+	position: absolute;
+	right: 20px;
+	bottom: 20px;
+}
+
+.tutorial_message{
+	display: none;
+	margin: -50;
+	left: 50%;
+	position: absolute;
+	max-width: 400px;
+	min-width: 100px;
+	z-index: 200;
+	color: black;
+	font-family: Helvetica, sans-serif;
+	font-weight: normal;
+}
+
+.bottom{
+	bottom:0px;
+	margin: 0px;
+}
+
+.right{
+	left: 0px;
+	position: relative;
+	float: right;
+	margin: 10px;
+}
+
+.left{
+	left: 0px;
+	position: absolute;
+	margin-left: 210px;
+}
+
+.tutorial_text {
+	background-color: white;
+	border-radius: 10px;
+	padding: 10px;
+	max-width: 400px;
+	margin-left: -200px;
+	z-index: 200;
+}
+
+.tutorial_text em{
+	color: #cc7832;
+	font-weight: bold;
+}
+
+.vertical_arrow{
+	height: 100px;
+}
+
+#tutorial_buttons {
+	position: relative;
+	float: right;
+	top:-15px;
+}
+
+#tutorial_buttons [type="button"]{
+	position: static;
+	display: none;
+	margin: 0;
+}
+
+.positionReset{
+	top: 0px;
+	bottom: 0px;
+	right: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+}
+
+/*
+#tutorial_runButton{
+	left: 0px;
+	position: relative;
+	float: right;
+	margin: 5px;
+}
+*/
+
+#tutorial_runButton > .tutorial_text{
+	width: 250px;
+	margin-left: -150px;
+}
+
+#tutorial_console {
+	position: absolute;
+	top: 0px;
+}
+
+
+
+.map_tile{
+	border-collapse: collapse;
+	width: 40px;
+	height: 40px;
+	background-color: #ff1d1d;
+	border: 2px solid #222222;
+	position: absolute;
+}
+
+#map_goal{
+	position: absolute;
+	width: 35px;
+	height: 35px;
+	background-color: #ebd234;
+}
+
+#map_character{
+	position: absolute;
+	width: 35px;
+	height: 35px;
+	background-color: #222222;
+}
+
+.map_character_eye{
+	position: absolute;
+	width: 8px;
+	height: 8px;
+	background-color: white;
+	z-index: 20;
+}
+
+#map_message{
+	text-align: center;
+	display: none;
+}
+
+#map_message em{
+	margin-bottom: 8px;
+}
+
+#map_message [type="button"]{
+	position: static;
+	margin-top: 8px;
+}
+
+.centre{
+	top: 40%;
+}
+
+
+

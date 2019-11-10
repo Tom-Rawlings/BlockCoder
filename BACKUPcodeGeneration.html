@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Code Generation with Blockly</title>
+		<script src="jquery-3.4.1.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css">
+
+		<script src="blockly/blockly_compressed.js"></script>
+		<script src="blockly/javascript_compressed.js"></script>
+		<script src="blockly/blocks_compressed.js"></script>
+		<script src="blockly/msg/js/en.js"></script>
+
+		<script src="customBlocks.js"></script>
+		<script src="blocklySetup.js"></script>
+		<script src="playObject.js"></script>
+
+		<script src="console.js"></script> 
+
+	</head>
+
+	<body>
+		<div id="blocklyArea"></div>
+		<div id="blocklyDiv" style="position: absolute"></div>
+		<img id="runButton" src="RUN.png" onclick="runBlocks()">
+
+		<div id="playArea">
+			<h2>Play Area</h2>
+			<div id="centre"></div>
+		</div>
+
+		<div id="resizer"></div>
+		<div id="consoleArea">
+			<h2>Console.<hr/></h2>
+			<p id="consoleText"></p>
+			<input id="consoleInput" type="text" value="">
+			<div>
+				<input type="button" value="Run" onclick="runConsoleCommand()">
+				<input type="button" value="Clear Input" onclick="clearConsoleInput()">
+				<input type="button" value="Clear Log" onclick="clearConsoleLog()">
+				<input type="button" value="Last Command" onclick="retrieveLastCommand()">
+			</div>
+			<div id="consoleScript"></div>
+			<textarea id="codeArea" spellcheck="false"></textarea>
+		</div>
+
+
+		<xml id="toolbox" style="display: none">
+
+			<category name="Basic" colour="48"></category>
+		  <category name="Logic" colour="210">
+		  	<block type="logic_compare"></block>
+		  	<block type="controls_if"></block>
+		  </category>
+  		<category name="Loops" colour="120">
+  			<block type="controls_repeat_ext"></block>
+  		</category>
+
+		  <category name="Math" colour="230">
+  		  <block type="math_number"></block>
+		  	<block type="math_arithmetic"></block>
+			</category>
+		  <category name="Colour" colour="20">...</category>
+		  <category name="Variables" colour="330" custom="VARIABLE"></category>
+		  <category name="Functions" colour="290" custom="PROCEDURE"></category>
+		  <category name="Misc" colour="420">
+			  <block type="text"></block>
+		  	<block type="text_print"></block>
+  			<block type="create_play_object"></block>
+  			<block type="start"></block>
+  			<block type="playobject_moveto"></block>
+  			<block type="change_play_object_colour"></block>
+		  </category>
+		</xml>
+
+	</body>
+
+	<script>
+
+
+		class Coord2d{
+			constructor(x, y){
+				this.x = x;
+				this.y = y;
+			}
+
+			toString(){
+				return `(${this.x},${this.y})`;
+			}
+		}
+
+
+		function removePixelUnits(pixelString){
+			return pixelString.substring(0, pixelString.length-2) - 0;
+		}
+
+		/*
+			Global Variables
+		*/
+		var lastConsoleCommand = "";
+		var activePlayObjects = new Array();
+		var playObjectDictionary = {};
+		var playObjectIds = 0;
+
+		//---
+
+
+		
+	  //
+	  setupBlockly();
+	  resizeConsole();
+	  overrideConsoleMethods();
+	  setupPlayArea();
+		positionRunButton();
+
+		document.onkeydown = checkKeyDown;
+
+		addObjectToPlayArea("test", 30, 30);
+		//---
+
+
+
+		/*
+			Input
+		*/
+  	
+		function checkKeyDown(e) {
+
+		    e = e || window.event;
+
+		    //UP
+		    if (e.keyCode == '38') {
+		    	//panPlayArea(0, -10);
+		    }
+
+		    //DOWN
+		    if (e.keyCode == '40') {
+		    	//panPlayArea(0, 10);
+				}
+
+		    //LEFT
+		    if (e.keyCode == '37') {
+		    	//panPlayArea(-10, 0);
+		    }
+		    //RIGHT
+		    if (e.keyCode == '39') {
+					//panPlayArea(10, 0);
+		    }
+
+		    //ENTER
+		    if (e.keyCode == '13') {
+		    	if($("#consoleInput").is(':focus'))
+			    	runConsoleCommand();
+		    }
+
+
+		}
+
+		//---
+
+
+		
+
+
+		function runBlocks(){
+			var code = $("#codeArea").val();//Blockly.JavaScript.workspaceToCode(workspace);
+			console.log("Running block code: " + code);
+			runScript(code);
+		}
+
+		function generateBlocklyCode(event) {
+		  var code = Blockly.JavaScript.workspaceToCode(workspace);
+		  document.getElementById('codeArea').value = code;
+		}
+
+
+		createResizer($("#resizer")[0]);
+
+		//Turn div into resizer line
+		function createResizer(lineDiv){
+			var resizeLine ;
+	    lineDiv.addEventListener('mousedown', function(e) {
+	      window.addEventListener('mousemove', resize);
+	      window.addEventListener('mouseup', cancelResize);
+	    });
+  	}
+
+
+    /*
+			Resizing and positioning
+    */
+
+    function resize(e) {
+    	e.preventDefault();
+      $("#blocklyArea").css("width", e.pageX - document.getElementById("blocklyArea").getBoundingClientRect().left + 'px');
+    	$("#blocklyArea").css("height", ($(window).height()/3*2)+"px");
+    	resizePlayArea();
+      onresize();
+      resizeConsole();
+      positionRunButton();
+    }
+
+
+
+    //Scrolls the element to the bottom when called
+    //Used so that console always shows latest entry
+		function scrollToBottom(element){
+	    var element = document.getElementById(element);
+	    element.scrollTop = element.scrollHeight;
+		}
+
+    function resizePlayArea(){
+    	var blocklyHeight = $("#blocklyArea").css("height");
+    	var blocklyWidth = $("#blocklyArea").css("width");
+	  	$("#playArea").css("width", blocklyWidth.substring(0, blocklyWidth.length-2)-15);
+	  	$("#playArea").css("height",$(window).height()/3-20);
+	  	$("#playArea").css("top", $("#blocklyArea").css("height"));
+    }
+
+    function centrePlayArea(){
+		  var playAreaWidth = $("#playArea").css("width");
+		  var playAreaHeight = $("#playArea").css("height");
+		  $("#centre").css("left", playAreaWidth.substring(0,playAreaWidth.length-2)/2);
+		  $("#centre").css("top", playAreaHeight.substring(0,playAreaHeight.length-2)/2);
+    }
+
+    function positionRunButton(){
+    	var blocklyHeight = $("#blocklyArea").css("height");
+    	var blocklyWidth = $("#blocklyArea").css("width");
+    	$("#runButton").css("position", "absolute");
+	  	$("#runButton").css("left", blocklyWidth.substring(0, blocklyWidth.length-2)-140);
+	  	$("#runButton").css("top", blocklyHeight.substring(0, blocklyHeight.length-2)-70);
+    }
+
+    function cancelResize(e){
+    	window.removeEventListener("mousemove", resize);
+    }
+    //---
+
+
+    /*
+			Play area stuff
+    */
+    function setupPlayArea(){
+	    resizePlayArea();
+			centrePlayArea();
+    }
+
+		makePlayAreaPannable();
+		var playPanX = 0;
+		var playPanY = 0;
+    function makePlayAreaPannable(){
+    	var playArea = document.getElementById("playArea");
+
+    	playArea.addEventListener("mousedown", function(e){
+    		playPanX = e.pageX;
+    		playPanY = e.pageY;
+    		window.addEventListener("mousemove", panPlayAreaWithMouse);
+    		window.addEventListener("mouseup", cancelPlayAreaPan)
+    	});
+    }
+
+    function panPlayAreaWithMouse(e){
+    	e.preventDefault();
+    	//Move centre
+    	var amountX = e.pageX - playPanX;
+			var amountY = e.pageY - playPanY;
+			playPanX = e.pageX;
+			playPanY = e.pageY;
+			$("#centre").css("top", removePixelUnits($("#centre").css("top")) + amountY + "px");
+			$("#centre").css("left", removePixelUnits($("#centre").css("left")) +amountX + "px");
+    	var playObject;
+    	for(var i = 0; i < activePlayObjects.length; i++){
+				playObject = "playObject" + activePlayObjects[i].id;
+				$(`#${playObject}`).css("top", removePixelUnits($(`#${playObject}`).css("top")) + amountY + "px");
+				$(`#${playObject}`).css("left", removePixelUnits($(`#${playObject}`).css("left")) +amountX + "px");
+    	}
+    }
+
+    function cancelPlayAreaPan(){
+    	window.removeEventListener("mousemove", panPlayAreaWithMouse);
+    }
+
+
+    //Creates a new div in the centre of the play area with the given id
+    function addObjectToPlayArea(name, width, height){
+    	var currentId = playObjectIds;
+
+    	$("#playArea").html($("#playArea").html() + `<div id="playObject${currentId}"></div>`);
+    	var style = {
+    		"width": width + "px",
+    		"height": height + "px",
+    		"position": "absolute",
+    		"background-color": "black"
+    	}
+    	$(`#playObject${currentId}`).css(style);
+
+    	activePlayObjects.push(new PlayObject(name));
+    	playObjectDictionary[name] = currentId;
+
+    }
+
+    function movePlayObjectBy(name, amountX, amountY){
+    	for(var i = 0; i < activePlayObjects.length; i++){
+    		if (activePlayObjects[i].name == name){
+    			activePlayObjects[i].moveBy(amountX, amountY);
+    			break;
+    		}
+    		
+    	}
+    }
+
+    function movePlayObjectTo(name, x, y){
+    	for(var i = 0; i < activePlayObjects.length; i++){
+    		//console.log(`activePlayObjects[i].name = ${activePlayObjects[i].name}`);
+    		if (activePlayObjects[i].name == name){
+    			activePlayObjects[i].moveTo(x, y);
+	    		break;
+    		}
+    	}
+    }
+
+    function changePlayObjectColour(name, colour){
+    	/*
+    	for(var i = 0; i < activePlayObjects.length; i++){
+    		//console.log(`activePlayObjects[i].name = ${activePlayObjects[i].name}`);
+    		if (activePlayObjects[i].name == name){
+    			activePlayObjects[i].changeColour(colour);
+	    		break;
+    		}
+    	}
+    	*/
+    	getPlayObjectByName(name).changeColour(colour);
+    }
+
+    function getPlayObjectByName(name){
+    	for(var i = 0; i < activePlayObjects.length; i++){
+    		if(activePlayObjects[i].name == name)
+    			return activePlayObjects[i];
+    	}
+    	console.error(`getPlayObjectByName() -- ${name} not found`);
+    	return null;
+    	
+    }
+
+    function panPlayArea(amountX, amountY){
+    	//Move centre
+			$("#centre").css("top", removePixelUnits($("#centre").css("top")) + amountY + "px");
+			$("#centre").css("left", removePixelUnits($("#centre").css("left")) +amountX + "px");
+    	var id;
+    	for(var i = 0; i < activePlayObjects.length; i++){
+				id = activePlayObjects[i].id;
+				$(`#playObject${id}`).css("top", removePixelUnits($(`#playObject${id}`).css("top")) + amountY + "px");
+				$(`#playObject${id}`).css("left", removePixelUnits($(`#playObject${id}`).css("left")) +amountX + "px");
+    	}
+    }
+    //-
+
+
+
+	</script>
+
+</html>
