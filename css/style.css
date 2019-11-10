@@ -25,10 +25,6 @@ body{
 	height: 100%;
 }
 
-div{
-
-}
-
 table, td{
 	border: 1px solid black;
 }
@@ -301,9 +297,6 @@ input.centre{
 	white-space: nowrap;
 }
 
-.CodeMirror{
-
-}
 
 .CodeMirror-hscrollbar{
 	padding-left:2px;
